@@ -21,4 +21,14 @@ const rollDice = (number, sides) => {
 	}
 };
 
-module.exports = rollDice;
+const roll = (number, sides) => {
+	const rollArr = rollDice(number, sides);
+	const total = rollArr.reduce((a, b) => a + b);
+
+	return {
+		total,
+		array: rollArr,
+	};
+};
+
+module.exports = roll;
