@@ -1,8 +1,21 @@
-const rollDice = (number, sides) => {
+const rollDice = (notation) => {
 	try {
-		if (!Number.isInteger(number) || !Number.isInteger(sides)) {
-			throw "Arguments must be whole numbers!";
+		const dCharacters = notation.replace(/[^d]/g, "").length;
+
+		/**
+         * If your notation does not include at least one 'd'
+         * or includes more than one 'd', throw an error
+         * and return a correct notation example
+         */
+		if (
+			!notation.includes("d")
+            || dCharacters !== 1
+		) {
+			throw "Your roll must be formatted like this: 2d6";
 		}
+
+		let number = parseInt(notation.split("d")[0]);
+		const sides = parseInt(notation.split("d")[1]);
 
 		const results = [];
 
@@ -17,18 +30,24 @@ const rollDice = (number, sides) => {
 		}
 	}
 	catch (err) {
-		return err;
+		throw err;
 	}
 };
 
-const roll = (number, sides) => {
-	const rollArr = rollDice(number, sides);
-	const total = rollArr.reduce((a, b) => a + b);
+const roll = (notation) => {
+	try {
+		const rollArr = rollDice(notation);
+		const total = rollArr.reduce((a, b) => a + b);
 
-	return {
-		total,
-		array: rollArr,
-	};
+		return {
+			total,
+			array: rollArr,
+		};
+	}
+	catch (err) {
+		console.log("An error occured!", err);
+		return err;
+	}
 };
 
 module.exports = roll;

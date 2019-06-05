@@ -28,11 +28,11 @@ client.on("message", message => {
 			message.channel.send("Usage: !roll {dice} {sides}");
 			return message.channel.send("For example, to roll 2 d6: !roll 2 6");
 		}
-		else if (args.length !== 2) {
-			return message.channel.send("Please only include 2 arguments!");
+		else if (args.length !== 1) {
+			return message.channel.send("Please only include 1 argument when rolling dice!");
 		}
 		else {
-			const result = roll(args[0], args[1]);
+			const result = roll(args[0]);
 			return message.channel.send(`You rolled ${result.total}! Your rolls were: ${roll.array}`);
 		}
 	}
