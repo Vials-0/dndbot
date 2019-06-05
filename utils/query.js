@@ -47,8 +47,10 @@ const querySpell = (search) => {
 						duration,
 						concentration,
 						casting_time,
-						desc,
+						desc
 					});
+
+					return desc;
 				});
 			}
 		});
@@ -56,4 +58,8 @@ const querySpell = (search) => {
 	catch (err) {
 		console.log("querySpell error:", err);
 	}
+};
+
+module.exports = {
+	querySpell
 };

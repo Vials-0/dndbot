@@ -1,5 +1,9 @@
 const rollDice = (notation) => {
 	try {
+		if (!notation) {
+			throw "Usage example: !roll 2d6";
+		}
+
 		const dCharacters = notation.replace(/[^d]/g, "").length;
 
 		/**
@@ -39,10 +43,7 @@ const roll = (notation) => {
 		const rollArr = rollDice(notation);
 		const total = rollArr.reduce((a, b) => a + b);
 
-		return {
-			total,
-			array: rollArr,
-		};
+		return (`You rolled ${total}! Your rolls were: ${rollArr}`);
 	}
 	catch (err) {
 		console.log("An error occured!", err);

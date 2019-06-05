@@ -1,9 +1,16 @@
+const fs = require("fs");
 const Discord = require("discord.js");
-const client = new Discord.Client();
-
-const roll = require("./utils/diceroller");
-
 const { prefix, token } = require("./config.json");
+const client = new Discord.Client();
+client.commands = new Discord.Collection();
+
+// Set up commands
+const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	client.commands.set(command.name, command);
+}
+
 
 // On init
 client.once("ready", () => {
@@ -23,18 +30,17 @@ client.on("message", message => {
 	const args = message.content.slice(prefix.length).split(/ +/);
 	const command = args.shift().toLowerCase();
 
-	if (command === "roll") {
-		if (!args.length) {
-			message.channel.send("Usage: !roll {dice} {sides}");
-			return message.channel.send("For example, to roll 2 d6: !roll 2 6");
-		}
-		else if (args.length !== 1) {
-			return message.channel.send("Please only include 1 argument when rolling dice!");
-		}
-		else {
-			const result = roll(args[0]);
-			return message.channel.send(`You rolled ${result.total}! Your rolls were: ${roll.array}`);
-		}
+	// Early return if command does not exist
+	if (!client.commands.has(command)) {
+		return;
+	}
+
+	try {
+		client.commands.get(command).execute(message, args);
+	}
+	catch (err) {
+		console.log(err);
+		message.reply("An error occured while executing that command");
 	}
 });
 
