@@ -1,10 +1,10 @@
 const { queryDndApi } = require("./utils/query");
 
 module.exports = {
-	name: "spell",
-	description: "Query for spell data",
+	name: "creature",
+	description: "Query for creature data",
 	execute(message, args) {
-		const result = queryDndApi(args[0], "spell");
+		const result = queryDndApi(args[0], "creature");
 		message.channel.send(result);
 	}
 };

@@ -14,12 +14,64 @@ const apiGet = (url) => {
 };
 
 /**
- * Query a spell using the http://www.dnd5eapi.co/ api
- * @param {string} search - Search term, seperated by hyphens. Example: "magic-missile"
+ * Return API category corresponding to input command
+ * @param {string} command -- input command (ex: "spell" or "creature")
  */
-const querySpell = (search) => {
-	try {
+const getCategory = (command) => {
+	switch (command) {
+	case "spell":
+		return "spells";
+	case "creature":
+		return "monsters";
+	default:
+		console.log("No category found for command ", command);
+		return "";
+	}
+};
 
+/**
+ * Format response object into useful data based on command
+ * @param {string} command -- bot command
+ * @param {object} response -- response from DnD api
+ */
+const formatReturnData = (response, command) => {
+	switch (command) {
+	case "spell": {
+		const { desc, range, level, duration, concentration, casting_time } = response;
+		return {
+			level,
+			range,
+			duration,
+			concentration,
+			casting_time,
+			desc
+		};
+	}
+	case "creature": {
+		const { size, type, armor_class, hit_points, speed, special_abilities, actions } = response;
+		return {
+			size,
+			type,
+			armor_class,
+			hit_points,
+			speed,
+			actions,
+			special_abilities
+		};
+	}
+	default:
+		console.log("No data able to be formatted for command ", command);
+		return {};
+	}
+};
+
+/**
+ * Make a query using the http://www.dnd5eapi.co/ api
+ * @param {string} search -- search term (ex: "magic-missile" or "dire-wolf")
+ * @param {string} command -- bot command (ex: "spell" or "creature")
+ */
+const queryDndApi = (search, command) => {
+	try {
 		// Format serch query for use by API
 		// "magic-missile" --> "Magic+Missile"
 		const formattedQuery = search
@@ -27,39 +79,33 @@ const querySpell = (search) => {
 			.map(item => item.charAt(0).toUpperCase() + item.substr(1))
 			.join("+");
 
-		const url = `${baseWikiUrl}/spells/?name=${formattedQuery}`;
+		const url = `${baseWikiUrl}/${getCategory(command)}/?name=${formattedQuery}`;
 
-		// Query for spell's direct url
+		// Query for direct URL
 		apiGet(url).then(data => {
 			if (!data.count) {
-				console.log("No spell found!");
+				console.log(`No ${command} found`);
 			}
 			else {
-				const spellUrl = data.results[0].url;
+				const directUrl = data.results[0].url;
 
-				// Query for spell data
-				apiGet(spellUrl).then(result => {
-					const { desc, range, level, duration, concentration, casting_time } = result;
-
-					console.log({
-						level,
-						range,
-						duration,
-						concentration,
-						casting_time,
-						desc
-					});
-
-					return desc;
+				// Query for data
+				apiGet(directUrl).then(result => {
+					const formattedData = formatReturnData(result, command);
+					console.log(formattedData);
+					return formattedData;
 				});
 			}
 		});
+
 	}
 	catch (err) {
-		console.log("querySpell error:", err);
+		console.log(`Error querying for ${command} with query: ${search}`);
 	}
 };
 
+// queryDndApi(process.argv[2], "spell");
+
 module.exports = {
-	querySpell
+	queryDndApi
 };
