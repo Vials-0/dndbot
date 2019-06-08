@@ -23,6 +23,10 @@ const getCategory = (command) => {
 		return "spells";
 	case "creature":
 		return "monsters";
+	case "skill":
+		return "skills";
+	case "condition":
+		return "conditions";
 	default:
 		console.log("No category found for command ", command);
 		return "";
@@ -59,7 +63,23 @@ const formatReturnData = (response, command) => {
 			special_abilities
 		};
 	}
+	case "skill": {
+		const { name, desc, ability_score } = response;
+		return {
+			name,
+			abilityScore: ability_score.name,
+			desc
+		};
+	}
+	case "condition": {
+		const { name, desc } = response;
+		return {
+			name,
+			desc // need to format array
+		};
+	}
 	default:
+		console.log(response);
 		console.log("No data able to be formatted for command ", command);
 		return {};
 	}
@@ -104,7 +124,7 @@ const queryDndApi = (search, command) => {
 	}
 };
 
-// queryDndApi(process.argv[2], "spell");
+queryDndApi(process.argv[2], process.argv[3]);
 
 module.exports = {
 	queryDndApi
