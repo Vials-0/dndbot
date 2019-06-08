@@ -1,5 +1,6 @@
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
+const config = require("../../config.json");
 
 const adapter = new FileSync("db.json");
 const db = low(adapter);
@@ -14,11 +15,8 @@ class DatabaseModel {
 			DatabaseModel.instance = this;
 		}
 
-		// Set default columns
-		db.defaults({
-			initiative: [],
-			errors: []
-		})
+		// Set default tables
+		db.defaults(config.tables)
 			.write();
 
 		return DatabaseModel.instance;
@@ -26,12 +24,12 @@ class DatabaseModel {
 
 	/**
      * Query for entries
-     * @param {string} column - column to query
+     * @param {string} table - table to query
      * @param {object} keyVal - key value pair to search for (ex {name: "Jace"})
      */
-	get(column, keyVal) {
+	get(table, keyVal) {
 		try {
-			const result = db.get(column)
+			const result = db.get(table)
 				.filter(keyVal)
 				.value();
 
@@ -45,12 +43,12 @@ class DatabaseModel {
 
 	/**
      * See if entries exist already
-     * @param {string} column - column to query
+     * @param {string} table - table to query
      * @param {object} keyVal - key value pair to search for (ex {name: "Jace"})
      */
-	hasEntry(column, keyVal) {
+	hasEntry(table, keyVal) {
 		try {
-			const result = this.get(column, keyVal);
+			const result = this.get(table, keyVal);
 			return !!result.length;
 		}
 		catch (err) {
@@ -61,12 +59,12 @@ class DatabaseModel {
 
 	/**
      * Create an entry
-     * @param {string} column - column to query
+     * @param {string} table - table to query
      * @param {object} data - update object
      */
-	create(column, data) {
+	create(table, data) {
 		try {
-			return db.get(column)
+			return db.get(table)
 				.push(data)
 				.write();
 		}
@@ -79,13 +77,13 @@ class DatabaseModel {
 
 	/**
      * Update an entry
-     * @param {string} column - column to query
+     * @param {string} table - table to query
      * @param {object} keyVal - key value pair to search for (ex {name: "Jace"})
      * @param {object} update - update object
      */
-	update(column, keyVal, update) {
+	update(table, keyVal, update) {
 		try {
-			return db.get(column)
+			return db.get(table)
 				.find(keyVal)
 				.assign(update)
 				.write();
@@ -98,12 +96,12 @@ class DatabaseModel {
 
 	/**
      * Remove an entry
-     * @param {string} column - column to query
+     * @param {string} table - table to query
      * @param {object} keyVal - key value pair to search for (ex {name: "Jace"})
      */
-	delete(column, keyVal) {
+	delete(table, keyVal) {
 		try {
-			return db.get(column)
+			return db.get(table)
 				.remove(keyVal)
 				.write();
 		}
@@ -114,17 +112,32 @@ class DatabaseModel {
 	}
 
 	/**
-     * Clear all data from a column
-     * @param {string} column - column to clear
-     */
-	clearColumn(column) {
+	 * Return all values in a table
+	 * @param {string} table - table to query
+	 */
+	getTable(table) {
 		try {
-			return db.set(column, [])
+			return db.get(table)
+				.value();
+		}
+		catch (err) {
+			console.log("DatabaseModel.getTable error:", err);
+			this.error("DatabaseModel.getTable", err.toString());
+		}
+	}
+
+	/**
+     * Clear all data from a table
+     * @param {string} table - table to clear
+     */
+	clearTable(table) {
+		try {
+			return db.set(table, [])
 				.write();
 		}
 		catch (err) {
-			console.log("DatabaseModel.clearColumn error:", err);
-			this.error("DatabaseModel.clearColumn", err.toString());
+			console.log("DatabaseModel.clearTable error:", err);
+			this.error("DatabaseModel.clearTable", err.toString());
 		}
 	}
 
