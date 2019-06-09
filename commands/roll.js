@@ -1,4 +1,4 @@
-const roll = require("./utils/diceroller");
+const roll = require("../utils/diceroller");
 
 module.exports = {
 	name: "roll",

@@ -90,8 +90,9 @@ const formatReturnData = (response, command) => {
  * @param {string} search -- search term (ex: "magic-missile" or "dire-wolf")
  * @param {string} command -- bot command (ex: "spell" or "creature")
  */
-const queryDndApi = (search, command) => {
+const queryDndApi = async (search, command) => {
 	try {
+
 		// Format serch query for use by API
 		// "magic-missile" --> "Magic+Missile"
 		const formattedQuery = search
@@ -99,32 +100,35 @@ const queryDndApi = (search, command) => {
 			.map(item => item.charAt(0).toUpperCase() + item.substr(1))
 			.join("+");
 
+		// Build url and check for results
 		const url = `${baseWikiUrl}/${getCategory(command)}/?name=${formattedQuery}`;
+		const searchResult = await apiGet(url);
 
-		// Query for direct URL
-		apiGet(url).then(data => {
-			if (!data.count) {
-				console.log(`No ${command} found`);
-			}
-			else {
-				const directUrl = data.results[0].url;
+		// If no results, bail
+		if (!searchResult.count) {
+			return `No ${command} found!`;
+		}
 
-				// Query for data
-				apiGet(directUrl).then(result => {
-					const formattedData = formatReturnData(result, command);
-					console.log(formattedData);
-					return formattedData;
-				});
-			}
-		});
+		// Grab direct url from search result and query
+		const directUrl = searchResult.results[0].url;
+		const result = await apiGet(directUrl);
 
+		// Format the data based on command type
+		const formattedData = formatReturnData(result, command);
+
+		// Massage data into readable format & add line breaks
+		const message = Object.keys(formattedData).map(key => {
+			let capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+			capitalizedKey = capitalizedKey.replace(/_/g, " ");
+			return `${capitalizedKey}: ${formattedData[key]}`;
+		}).join(" \n");
+
+		return message;
 	}
 	catch (err) {
 		console.log(`Error querying for ${command} with query: ${search}`);
 	}
 };
-
-queryDndApi(process.argv[2], process.argv[3]);
 
 module.exports = {
 	queryDndApi

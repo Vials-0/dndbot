@@ -80,9 +80,9 @@ class InitiativeModel {
 			// Format data into multiline message
 			const message = sortedValues.reduce((acc, current, index) => {
 				const accumulator = index === 1
-					? `${acc.id} - ${acc.initiative} /n `
+					? `${acc.id} - ${acc.initiative} \n`
 					: acc;
-				const text = `${current.id} - ${current.initiative} /n `;
+				const text = `${current.id} - ${current.initiative} \n`;
 
 				return accumulator + text;
 			});
