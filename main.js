@@ -28,15 +28,29 @@ client.on("message", message => {
 	// Break message into args & remove first arg (command)
 	// Regex ignores extra spaces
 	const args = message.content.slice(prefix.length).split(/ +/);
-	const command = args.shift().toLowerCase();
+	const commandName = args.shift().toLowerCase();
 
 	// Early return if command does not exist
-	if (!client.commands.has(command)) {
+	if (!client.commands.has(commandName)) {
 		return;
 	}
 
+	const command = client.commands.get(commandName);
+
+	// Ensure commands that need arguments have them and inform user of correct usage
+	if (command.args && !args.length) {
+		let reply = "You didn't provide any arguments.";
+
+		if (command.usage) {
+			reply += `\n Example of use: \`${prefix}${command.name} ${command.usage}\``;
+		}
+
+		return message.channel.send(reply);
+	}
+
+	// Run command
 	try {
-		client.commands.get(command).execute(message, args);
+		command.execute(message, args);
 	}
 	catch (err) {
 		console.log(err);

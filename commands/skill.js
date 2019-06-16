@@ -2,6 +2,8 @@ const { queryDndApi } = require("../utils/query");
 
 module.exports = {
 	name: "skill",
+	args: true,
+	usage: "<skill>",
 	description: "Query for skill data",
 	async execute(message, args) {
 		const result = await queryDndApi(args[0], "skill");
