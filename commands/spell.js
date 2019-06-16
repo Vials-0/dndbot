@@ -1,10 +1,11 @@
-const { queryDndApi } = require("../utils/query");
+const SpellModel = require("../models/SpellModel");
+const model = new SpellModel();
 
 module.exports = {
 	name: "spell",
 	description: "Query for spell data",
 	async execute(message, args) {
-		const result = await queryDndApi(args[0], "spell");
+		const result = model.search(args[0]);
 		message.channel.send(result);
 	}
 };
